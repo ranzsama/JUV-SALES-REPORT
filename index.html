@@ -36,7 +36,7 @@ th{font-size:13px;color:#6b7280}
 </head>
 <body>
 <header>
-<h1>📦 Stock Store Manager</h1>
+<h1>📦 JUV STOCK REPORT</h1>
 <p>Manage products, add new stocks, record sales, and see remaining inventory.</p>
 </header>
 
@@ -68,6 +68,8 @@ th{font-size:13px;color:#6b7280}
 <form id="saleForm">
 <label>Product</label>
 <select id="saleProduct" required></select>
+<label>Buyer Name</label>
+<input id="buyerName" type="text" placeholder="Example: Juan Dela Cruz" required>
 <label>Quantity Sold</label>
 <input id="saleQuantity" type="number" min="1" step="1" required>
 <button class="primary" type="submit">Sell Item</button>
@@ -211,4 +213,4 @@ function clearAll(){
 render();
 </script>
 </body>
-</html>
+</html>	
