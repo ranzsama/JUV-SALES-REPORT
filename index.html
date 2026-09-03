@@ -239,6 +239,11 @@ and see remaining inventory.
 <!-- PRODUCT SUMMARY -->
 
 <div class="cards" id="productSummary"></div>
+<div class="panel" style="margin-bottom:20px;">
+    <h2 style="margin-bottom:6px;">Today's Total Sales</h2>
+    <strong id="dailySalesTotal" style="font-size:30px;">₱0.00</strong>
+    <div class="card-info">Total value of sales recorded today.</div>
+</div>
 
 
 <div id="notice" class="notice"></div>
@@ -327,10 +332,14 @@ margin:25px 0;
 
 <label>Product</label>
 
-<select
+<input
     id="saleProduct"
+    type="text"
+    placeholder="Type product name here"
+    autocomplete="off"
     required
-></select>
+>
+<datalist id="saleProductList"></datalist>
 
 
 <label>Buyer Name</label>
@@ -416,6 +425,7 @@ Sell Item
 
 
 <button
+    type="button"
     class="danger"
     onclick="clearAll()"
 >
@@ -861,6 +871,7 @@ function render(){
                     <td class="actions">
 
                         <button
+                            type="button"
                             class="secondary"
                             onclick="addStock(${i})"
                         >
@@ -868,6 +879,7 @@ function render(){
                         </button>
 
                         <button
+                            type="button"
                             class="danger"
                             onclick="deleteProduct(${i})"
                         >
@@ -886,39 +898,49 @@ function render(){
 
 
     /*
-    PRODUCT DROPDOWN
+    TYPEABLE PRODUCT LIST
     */
 
-    const select =
-        document.getElementById(
-            "saleProduct"
-        );
+    const saleProductInput =
+        document.getElementById("saleProduct");
 
-
-    if(products.length){
-
-        select.innerHTML =
-
-            products.map((p,i) => `
-
-                <option value="${i}">
-
-                    ${escapeHtml(p.name)}
-                    —
-                    ${p.stock} left
-
-                </option>
-
-            `).join("");
-
+    if(!products.length){
+        saleProductInput.placeholder = "Add a product first";
+    } else {
+        saleProductInput.placeholder = "Type product name here";
     }
 
-    else{
+    const productList =
+        document.getElementById("saleProductList");
 
-        select.innerHTML =
-            '<option value="">No products</option>';
+    productList.innerHTML = products.map(p => `
+        <option value="${escapeHtml(p.name)}">${p.stock} left</option>
+    `).join("");
 
-    }
+
+    /*
+    DAILY SALES TOTAL
+    */
+
+    const today = new Date().toLocaleDateString();
+
+    const dailyTotal = sales
+        .filter(s => new Date(s.date).toLocaleDateString() === today)
+        .reduce((total, s) => total + Number(s.total), 0);
+
+    document.getElementById("dailySalesTotal").textContent = money(dailyTotal);
+
+
+    /*
+    TYPEABLE PRODUCT LIST
+    */
+
+    const productList =
+        document.getElementById("saleProductList");
+
+    productList.innerHTML = products.map(p => `
+        <option value="${escapeHtml(p.name)}">${p.stock} left</option>
+    `).join("");
 
 
     /*
@@ -1328,9 +1350,6 @@ document
 
         e.target.reset();
 
-        document.getElementById("uom").value = "PCS";
-
-
         save();
 
     }
@@ -1353,11 +1372,17 @@ document
         e.preventDefault();
 
 
+        const productName =
+            document
+            .getElementById("saleProduct")
+            .value
+            .trim();
+
         const index =
-            Number(
-                document
-                .getElementById("saleProduct")
-                .value
+            products.findIndex(
+                p =>
+                    p.name.toLowerCase().trim() ===
+                    productName.toLowerCase()
             );
 
 
@@ -1521,22 +1546,73 @@ DELETE PRODUCT
 
 function deleteProduct(i){
 
+    if(i < 0 || i >= products.length){
+        message("Product not found.");
+        return;
+    }
 
-    if(
+    const productName = products[i].name;
 
-        confirm(
+    if(!confirm(`Delete ${productName}?`)){
+        return;
+    }
 
-            `Delete ${products[i].name}?`
+    products.splice(i, 1);
 
-        )
+    save();
 
-    ){
+    message(`${productName} deleted.`);
 
-        products.splice(i,1);
+}
 
-        save();
+
+/*
+====================================================
+UNDO LAST SALE
+====================================================
+*/
+
+function undoLastSale(){
+
+    if(!sales.length){
+
+        message("There is no sale to undo.");
+        return;
 
     }
+
+    const lastSale = sales[sales.length - 1];
+
+    const product = products.find(
+        p =>
+            p.name.toLowerCase().trim() ===
+            lastSale.product.toLowerCase().trim()
+    );
+
+    if(!product){
+
+        message("The product from the last sale no longer exists.");
+        return;
+
+    }
+
+    if(!confirm(
+        `Undo the last sale of ${lastSale.quantity} × ${lastSale.product}?`
+    )){
+
+        return;
+
+    }
+
+    product.stock += Number(lastSale.quantity);
+
+    sales.pop();
+
+    save();
+
+    message(
+        `Last sale undone. ${lastSale.quantity} × ${lastSale.product} returned to stock.`
+    );
 
 }
 
@@ -1546,6 +1622,7 @@ function deleteProduct(i){
 CLEAR EVERYTHING
 ====================================================
 */
+
 
 function clearAll(){
 
