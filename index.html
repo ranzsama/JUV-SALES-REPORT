@@ -1,5 +1,5 @@
 WEBSITE BY RANZ 
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -220,6 +220,7 @@ th{
 
 <body>
 
+
 <header>
 
 <h1> JUV STOCK REPORT</h1>
@@ -231,76 +232,85 @@ and see remaining inventory.
 
 </header>
 
+
 <div class="container">
+
 
 <!-- PRODUCT SUMMARY -->
 
 <div class="cards" id="productSummary"></div>
 
+
 <div id="notice" class="notice"></div>
 
+
 <div class="grid">
+
 
 <!-- LEFT PANEL -->
 
 <div class="panel">
 
+
 <h2>Add / Restock Product</h2>
 
+
 <form id="productForm">
+
 
 <label>Product Name</label>
 
 <input
-id="name"
-placeholder="Example: Coca-Cola"
-
+    id="name"
+    placeholder="Example: Coca-Cola"
+>
 
 
 <label>Price</label>
 
 <input
-id="price"
-type="number"
-min="0"
-step="0.01"
-placeholder="Example: 25"
-required
-
+    id="price"
+    type="number"
+    min="0"
+    step="0.01"
+    placeholder="Example: 25"
+    required
+>
 
 
 <label>Quantity to Add</label>
 
 <input
-id="quantity"
-type="number"
-min="1"
-step="1"
-placeholder="Example: 20"
-required
-
+    id="quantity"
+    type="number"
+    min="1"
+    step="1"
+    placeholder="Example: 20"
+    required
+>
 
 
 <label>Unit of Measure</label>
 
 <input
-id="uom"
-type="text"
-placeholder="Example: PCS"
-
+    id="uom"
+    type="text"
+    placeholder="Example: PCS"
+>
 
 
 <button
-class="primary"
-type="submit"
-
-
+    class="primary"
+    type="submit"
+>
 
 Add Stock
 
 </button>
 
+
 </form>
+
 
 <hr style="
 border:0;
@@ -308,59 +318,70 @@ border-top:1px solid #e5e7eb;
 margin:25px 0;
 ">
 
+
 <h2>Record Sale</h2>
 
+
 <form id="saleForm">
+
 
 <label>Product</label>
 
 <select
-id="saleProduct"
-required
+    id="saleProduct"
+    required
+></select>
+
 
 <label>Buyer Name</label>
 
 <input
-id="buyerName"
-type="text"
-placeholder="Example: Juan Dela Cruz"
-
+    id="buyerName"
+    type="text"
+    placeholder="Example: Juan Dela Cruz"
+>
 
 
 <label>Quantity Sold</label>
 
 <input
-id="saleQuantity"
-type="number"
-min="1"
-step="1"
-required
-
+    id="saleQuantity"
+    type="number"
+    min="1"
+    step="1"
+    required
+>
 
 
 <button
-class="primary"
-type="submit"
-
-
+    class="primary"
+    type="submit"
+>
 
 Sell Item
 
 </button>
 
+
 </form>
 
+
 </div>
+
 
 <!-- RIGHT PANEL -->
 
 <div class="panel">
 
+
 <h2>Inventory Report</h2>
+
 
 <div style="overflow-x:auto">
 
+
 <table>
+
 
 <thead>
 
@@ -384,21 +405,25 @@ Sell Item
 
 </thead>
 
+
 <tbody id="inventory"></tbody>
+
 
 </table>
 
+
 </div>
 
+
 <button
-class="danger"
-onclick="clearAll()"
-
-
+    class="danger"
+    onclick="clearAll()"
+>
 
 Clear All Data
 
 </button>
+
 
 <!-- SALES REPORT -->
 
@@ -408,9 +433,12 @@ Sales Transactions
 
 </h2>
 
+
 <div style="overflow-x:auto">
 
+
 <table>
+
 
 <thead>
 
@@ -432,11 +460,15 @@ Sales Transactions
 
 </thead>
 
+
 <tbody id="salesSummary"></tbody>
+
 
 </table>
 
+
 </div>
+
 
 <!-- INDIVIDUAL SALES -->
 
@@ -446,9 +478,12 @@ Sales Report
 
 </h2>
 
+
 <div style="overflow-x:auto">
 
+
 <table>
+
 
 <thead>
 
@@ -468,17 +503,23 @@ Sales Report
 
 </thead>
 
+
 <tbody id="salesReport"></tbody>
+
 
 </table>
 
+
 </div>
+
+
+</div>
+
 
 </div>
 
 </div>
 
-</div>
 
 <script>
 
@@ -1549,5 +1590,3 @@ render();
 </script>
 
 </body>
-
-</html>
