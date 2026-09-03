@@ -255,7 +255,6 @@ and see remaining inventory.
 <input
     id="name"
     placeholder="Example: Coca-Cola"
-    required
 >
 
 
@@ -1135,7 +1134,7 @@ document
             document
             .getElementById("name")
             .value
-            .trim();
+            .trim() || "Unnamed Product";
 
 
         const price =
@@ -1290,11 +1289,7 @@ document
         CHECK PRODUCT AND BUYER
         */
 
-        if(
-            !products[index]
-            ||
-            !buyer
-        ){
+        if(!products[index]){
 
             return;
 
@@ -1337,7 +1332,7 @@ document
 
         sales.push({
 
-            buyer:buyer,
+            buyer:buyer || "Walk-in Customer",
 
             product:p.name,
 
