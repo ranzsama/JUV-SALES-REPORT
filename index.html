@@ -1,216 +1,1507 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Stock Store Manager</title>
+
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f4f6f8;color:#20252b}
-header{background:#1f2937;color:white;padding:22px 30px}
-header h1{margin:0 0 5px;font-size:26px}
-header p{margin:0;color:#cbd5e1}
-.container{max-width:1100px;margin:25px auto;padding:0 18px}
-.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:20px}
-.card{background:white;border-radius:12px;padding:20px;box-shadow:0 2px 8px #00000012}
-.card small{color:#6b7280}.card strong{display:block;font-size:28px;margin-top:7px}
-.grid{display:grid;grid-template-columns:350px 1fr;gap:20px}
-.panel{background:white;border-radius:12px;padding:20px;box-shadow:0 2px 8px #00000012}
-h2{margin-top:0;font-size:20px}
-label{display:block;font-weight:bold;font-size:14px;margin:12px 0 6px}
-input,select{width:100%;padding:11px;border:1px solid #d1d5db;border-radius:7px;font-size:15px}
-button{border:0;border-radius:7px;padding:11px 15px;font-weight:bold;cursor:pointer;margin-top:12px}
-.primary{background:#2563eb;color:white;width:100%}
-.danger{background:#dc2626;color:white}
-.secondary{background:#e5e7eb;color:#111827}
-table{width:100%;border-collapse:collapse}
-th,td{text-align:left;padding:12px 8px;border-bottom:1px solid #e5e7eb}
-th{font-size:13px;color:#6b7280}
-.stock-low{color:#dc2626;font-weight:bold}
-.stock-ok{color:#15803d;font-weight:bold}
-.empty{text-align:center;color:#6b7280;padding:30px}
-.actions button{margin:0 3px 3px 0;padding:7px 10px}
-.notice{padding:10px;border-radius:7px;background:#eff6ff;color:#1d4ed8;margin-bottom:15px;display:none}
-@media(max-width:800px){.grid{grid-template-columns:1fr}.cards{grid-template-columns:1fr}}
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f4f6f8;
+    color:#20252b;
+}
+
+header{
+    background:#1f2937;
+    color:white;
+    padding:22px 30px;
+}
+
+header h1{
+    margin:0 0 5px;
+    font-size:26px;
+}
+
+header p{
+    margin:0;
+    color:#cbd5e1;
+}
+
+.container{
+    max-width:1100px;
+    margin:25px auto;
+    padding:0 18px;
+}
+
+
+/* PRODUCT SUMMARY */
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.card{
+    background:white;
+    border-radius:12px;
+    padding:20px;
+    box-shadow:0 2px 8px #00000012;
+}
+
+.card small{
+    color:#6b7280;
+}
+
+.card strong{
+    display:block;
+    font-size:28px;
+    margin-top:7px;
+}
+
+.card-info{
+    margin-top:10px;
+    color:#6b7280;
+    font-size:14px;
+    line-height:1.7;
+}
+
+.remaining{
+    color:#15803d;
+    font-weight:bold;
+}
+
+.sold{
+    color:#dc2626;
+    font-weight:bold;
+}
+
+
+/* MAIN GRID */
+
+.grid{
+    display:grid;
+    grid-template-columns:350px 1fr;
+    gap:20px;
+}
+
+.panel{
+    background:white;
+    border-radius:12px;
+    padding:20px;
+    box-shadow:0 2px 8px #00000012;
+}
+
+h2{
+    margin-top:0;
+    font-size:20px;
+}
+
+label{
+    display:block;
+    font-weight:bold;
+    font-size:14px;
+    margin:12px 0 6px;
+}
+
+input,select{
+    width:100%;
+    padding:11px;
+    border:1px solid #d1d5db;
+    border-radius:7px;
+    font-size:15px;
+}
+
+button{
+    border:0;
+    border-radius:7px;
+    padding:11px 15px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:12px;
+}
+
+.primary{
+    background:#2563eb;
+    color:white;
+    width:100%;
+}
+
+.danger{
+    background:#dc2626;
+    color:white;
+}
+
+.secondary{
+    background:#e5e7eb;
+    color:#111827;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    text-align:left;
+    padding:12px 8px;
+    border-bottom:1px solid #e5e7eb;
+}
+
+th{
+    font-size:13px;
+    color:#6b7280;
+}
+
+.stock-low{
+    color:#dc2626;
+    font-weight:bold;
+}
+
+.stock-ok{
+    color:#15803d;
+    font-weight:bold;
+}
+
+.empty{
+    text-align:center;
+    color:#6b7280;
+    padding:30px;
+}
+
+.actions button{
+    margin:0 3px 3px 0;
+    padding:7px 10px;
+}
+
+.notice{
+    padding:10px;
+    border-radius:7px;
+    background:#eff6ff;
+    color:#1d4ed8;
+    margin-bottom:15px;
+    display:none;
+}
+
+@media(max-width:800px){
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .cards{
+        grid-template-columns:1fr;
+    }
+
+}
+
 </style>
+
 </head>
+
 <body>
+
+
 <header>
-<h1>📦 JUV STOCK REPORT</h1>
-<p>Manage products, add new stocks, record sales, and see remaining inventory.</p>
+
+<h1> JUV STOCK REPORT</h1>
+
+<p>
+Manage products, add new stocks, record sales,
+and see remaining inventory.
+</p>
+
 </header>
 
+
 <div class="container">
-<div class="cards">
-<div class="card"><small>Total Products</small><strong id="totalProducts">0</strong></div>
-<div class="card"><small>Total Items in Stock</small><strong id="totalStock">0</strong></div>
-<div class="card"><small>Total Sales</small><strong id="totalSales">0</strong></div>
-</div>
+
+
+<!-- PRODUCT SUMMARY -->
+
+<div class="cards" id="productSummary"></div>
+
 
 <div id="notice" class="notice"></div>
 
+
 <div class="grid">
+
+
+<!-- LEFT PANEL -->
+
 <div class="panel">
+
+
 <h2>Add / Restock Product</h2>
+
+
 <form id="productForm">
+
+
 <label>Product Name</label>
-<input id="name" placeholder="Example: Coca-Cola" required>
+
+<input
+    id="name"
+    placeholder="Example: Coca-Cola"
+    required
+>
+
+
 <label>Price</label>
-<input id="price" type="number" min="0" step="0.01" placeholder="Example: 25" required>
+
+<input
+    id="price"
+    type="number"
+    min="0"
+    step="0.01"
+    placeholder="Example: 25"
+    required
+>
+
+
 <label>Quantity to Add</label>
-<input id="quantity" type="number" min="1" step="1" placeholder="Example: 20" required>
-<button class="primary" type="submit">Add Stock</button>
+
+<input
+    id="quantity"
+    type="number"
+    min="1"
+    step="1"
+    placeholder="Example: 20"
+    required
+>
+
+
+<button
+    class="primary"
+    type="submit"
+>
+
+Add Stock
+
+</button>
+
+
 </form>
 
-<hr style="border:0;border-top:1px solid #e5e7eb;margin:25px 0">
+
+<hr style="
+border:0;
+border-top:1px solid #e5e7eb;
+margin:25px 0;
+">
+
 
 <h2>Record Sale</h2>
+
+
 <form id="saleForm">
+
+
 <label>Product</label>
-<select id="saleProduct" required></select>
+
+<select
+    id="saleProduct"
+    required
+></select>
+
+
 <label>Buyer Name</label>
-<input id="buyerName" type="text" placeholder="Example: Juan Dela Cruz" not required>
+
+<input
+    id="buyerName"
+    type="text"
+    placeholder="Example: Juan Dela Cruz"
+>
+
+
 <label>Quantity Sold</label>
-<input id="saleQuantity" type="number" min="1" step="1" required>
-<button class="primary" type="submit">Sell Item</button>
+
+<input
+    id="saleQuantity"
+    type="number"
+    min="1"
+    step="1"
+    required
+>
+
+
+<button
+    class="primary"
+    type="submit"
+>
+
+Sell Item
+
+</button>
+
+
 </form>
+
+
 </div>
+
+
+<!-- RIGHT PANEL -->
 
 <div class="panel">
-<h2>Inventory Report</h2>
-<div style="overflow-x:auto">
-<table>
-<thead><tr><th>Product</th><th>Price</th><th>Stock</th><th>Value</th><th>Actions</th></tr></thead>
-<tbody id="inventory"></tbody>
-</table>
-</div>
-<button class="danger" onclick="clearAll()">Clear All Data</button>
 
-<h2 style="margin-top:28px">Sales Report</h2>
+
+<h2>Inventory Report</h2>
+
+
 <div style="overflow-x:auto">
+
+
 <table>
-<thead><tr><th>Buyer</th><th>Product</th><th>Qty</th><th>Total</th><th>Date</th></tr></thead>
-<tbody id="salesReport"></tbody>
+
+
+<thead>
+
+<tr>
+
+<th>Product</th>
+
+<th>Price</th>
+
+<th>Stock Left</th>
+
+<th>Value</th>
+
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="inventory"></tbody>
+
+
 </table>
+
+
 </div>
+
+
+<button
+    class="danger"
+    onclick="clearAll()"
+>
+
+Clear All Data
+
+</button>
+
+
+<!-- SALES SUMMARY -->
+
+<h2 style="margin-top:28px">
+
+Sales Summary by Product
+
+</h2>
+
+
+<div style="overflow-x:auto">
+
+
+<table>
+
+
+<thead>
+
+<tr>
+
+<th>Product</th>
+
+<th>Total Sold</th>
+
+<th>Total Sales</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="salesSummary"></tbody>
+
+
+</table>
+
+
 </div>
+
+
+<!-- INDIVIDUAL SALES -->
+
+<h2 style="margin-top:28px">
+
+Sales Report
+
+</h2>
+
+
+<div style="overflow-x:auto">
+
+
+<table>
+
+
+<thead>
+
+<tr>
+
+<th>Buyer</th>
+
+<th>Product</th>
+
+<th>Qty</th>
+
+<th>Total</th>
+
+<th>Date</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="salesReport"></tbody>
+
+
+</table>
+
+
 </div>
+
+
 </div>
+
+
+</div>
+
+</div>
+
 
 <script>
-let products = JSON.parse(localStorage.getItem("storeProducts") || "[]");
-let sales = JSON.parse(localStorage.getItem("storeSales") || "[]");
+
+
+/* LOAD SAVED DATA */
+
+let products =
+JSON.parse(
+    localStorage.getItem("storeProducts") || "[]"
+);
+
+
+let sales =
+JSON.parse(
+    localStorage.getItem("storeSales") || "[]"
+);
+
+
+/* SAVE DATA */
 
 function save(){
- localStorage.setItem("storeProducts",JSON.stringify(products));
- localStorage.setItem("storeSales",JSON.stringify(sales));
- render();
+
+    localStorage.setItem(
+        "storeProducts",
+        JSON.stringify(products)
+    );
+
+    localStorage.setItem(
+        "storeSales",
+        JSON.stringify(sales)
+    );
+
+    render();
+
 }
-function money(n){return "₱"+Number(n).toFixed(2)}
+
+
+/* MONEY */
+
+function money(n){
+
+    return "₱" + Number(n).toFixed(2);
+
+}
+
+
+/* MESSAGE */
+
 function message(text){
- const el=document.getElementById("notice");
- el.textContent=text; el.style.display="block";
- setTimeout(()=>el.style.display="none",2500);
-}
-function render(){
- document.getElementById("totalProducts").textContent=products.length;
- document.getElementById("totalStock").textContent=products.reduce((a,p)=>a+p.stock,0);
- document.getElementById("totalSales").textContent=sales.reduce((a,s)=>a+s.quantity,0);
 
- const body=document.getElementById("inventory");
- body.innerHTML="";
- if(!products.length){
-   body.innerHTML='<tr><td colspan="5" class="empty">No products yet. Add your first stock.</td></tr>';
- } else {
-   products.forEach((p,i)=>{
-     const value=p.price*p.stock;
-     body.innerHTML+=`<tr>
-       <td><b>${escapeHtml(p.name)}</b></td>
-       <td>${money(p.price)}</td>
-       <td class="${p.stock<=5?'stock-low':'stock-ok'}">${p.stock}</td>
-       <td>${money(value)}</td>
-       <td class="actions">
-         <button class="secondary" onclick="addStock(${i})">+ Stock</button>
-         <button class="danger" onclick="deleteProduct(${i})">Delete</button>
-       </td>
-     </tr>`;
-   });
- }
- const select=document.getElementById("saleProduct");
- select.innerHTML=products.length
-   ? products.map((p,i)=>`<option value="${i}">${escapeHtml(p.name)} — ${p.stock} left</option>`).join("")
-   : '<option value="">No products</option>';
+    const el =
+        document.getElementById("notice");
 
- const report=document.getElementById("salesReport");
- report.innerHTML="";
- if(!sales.length){
-   report.innerHTML='<tr><td colspan="5" class="empty">No sales recorded yet.</td></tr>';
- } else {
-   [...sales].reverse().forEach(s=>{
-     const date=new Date(s.date).toLocaleString();
-     report.innerHTML+=`<tr>
-       <td><b>${escapeHtml(s.buyer)}</b></td>
-       <td>${escapeHtml(s.product)}</td>
-       <td>${s.quantity}</td>
-       <td>${money(s.total)}</td>
-       <td>${escapeHtml(date)}</td>
-     </tr>`;
-   });
- }
+    el.textContent = text;
+
+    el.style.display = "block";
+
+
+    setTimeout(() => {
+
+        el.style.display = "none";
+
+    },2500);
+
 }
+
+
+/* ESCAPE HTML */
+
 function escapeHtml(s){
- return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+
+    return String(s).replace(
+        /[&<>"']/g,
+
+        m => ({
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            '"':"&quot;",
+            "'":"&#039;"
+        }[m])
+    );
+
 }
 
-document.getElementById("productForm").addEventListener("submit",e=>{
- e.preventDefault();
- const name=document.getElementById("name").value.trim();
- const price=Number(document.getElementById("price").value);
- const qty=Number(document.getElementById("quantity").value);
- const existing=products.find(p=>p.name.toLowerCase()===name.toLowerCase());
- if(existing){
-   existing.stock+=qty;
-   existing.price=price;
-   message(`${name}: ${qty} stock added. Remaining: ${existing.stock}`);
- }else{
-   products.push({name,price,stock:qty});
-   message(`${name} added with ${qty} items.`);
- }
- e.target.reset(); save();
-});
 
-document.getElementById("saleForm").addEventListener("submit",e=>{
- e.preventDefault();
- const index=Number(document.getElementById("saleProduct").value);
- const buyer=document.getElementById("buyerName").value.trim();
- const qty=Number(document.getElementById("saleQuantity").value);
- if(!products[index] || !buyer) return;
- const p=products[index];
- if(qty>p.stock){message(`Not enough stock. Only ${p.stock} left.`);return}
- p.stock-=qty;
- sales.push({buyer,product:p.name,quantity:qty,total:p.price*qty,date:new Date().toISOString()});
- message(`Sale recorded for ${buyer}. ${qty} × ${p.name}. Remaining stock: ${p.stock}`);
- e.target.reset(); save();
-});
+/*
+====================================================
+PRODUCT SUMMARY
+====================================================
+
+Shows:
+
+Coke
+Stock: 20
+Sold: 2
+Remaining: 18
+
+Pepsi
+Stock: 17
+Sold: 2
+Remaining: 15
+*/
+
+function renderProductSummary(){
+
+    const summary =
+        document.getElementById(
+            "productSummary"
+        );
+
+
+    summary.innerHTML = "";
+
+
+    if(!products.length){
+
+        summary.innerHTML = `
+
+            <div class="card">
+
+                <small>No Products</small>
+
+                <strong>0</strong>
+
+                <div class="card-info">
+
+                    Add your first product.
+
+                </div>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    products.forEach(product => {
+
+
+        /*
+        FIND TOTAL SOLD FOR THIS PRODUCT
+        */
+
+        const sold =
+            sales
+
+            .filter(s =>
+                s.product
+                .toLowerCase()
+                .trim()
+
+                ===
+
+                product.name
+                .toLowerCase()
+                .trim()
+            )
+
+            .reduce(
+                (total,s) =>
+                    total + Number(s.quantity),
+
+                0
+            );
+
+
+        /*
+        CURRENT STOCK
+        */
+
+        const remaining =
+            Number(product.stock);
+
+
+        /*
+        TOTAL STOCK THAT WAS ADDED
+        */
+
+        const stockAdded =
+            remaining + sold;
+
+
+        summary.innerHTML += `
+
+            <div class="card">
+
+                <small>
+                    ${escapeHtml(product.name)}
+                </small>
+
+
+                <strong class="remaining">
+
+                    ${remaining} left
+
+                </strong>
+
+
+                <div class="card-info">
+
+                    Stock: <b>${stockAdded}</b>
+
+                    <br>
+
+                    Sold:
+                    <b class="sold">
+                        ${sold}
+                    </b>
+
+                    <br>
+
+                    Remaining:
+                    <b class="remaining">
+                        ${remaining}
+                    </b>
+
+                </div>
+
+            </div>
+
+        `;
+
+    });
+
+}
+
+
+/*
+====================================================
+MAIN RENDER
+====================================================
+*/
+
+function render(){
+
+
+    /*
+    PRODUCT SUMMARY
+    */
+
+    renderProductSummary();
+
+
+    /*
+    INVENTORY
+    */
+
+    const body =
+        document.getElementById(
+            "inventory"
+        );
+
+
+    body.innerHTML = "";
+
+
+    if(!products.length){
+
+        body.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="5"
+                    class="empty"
+                >
+
+                    No products yet.
+                    Add your first stock.
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+    else{
+
+
+        products.forEach((p,i) => {
+
+
+            const value =
+                p.price * p.stock;
+
+
+            body.innerHTML += `
+
+                <tr>
+
+                    <td>
+
+                        <b>
+                            ${escapeHtml(p.name)}
+                        </b>
+
+                    </td>
+
+
+                    <td>
+
+                        ${money(p.price)}
+
+                    </td>
+
+
+                    <td class="${
+                        p.stock <= 5
+                        ? "stock-low"
+                        : "stock-ok"
+                    }">
+
+                        ${p.stock}
+
+                    </td>
+
+
+                    <td>
+
+                        ${money(value)}
+
+                    </td>
+
+
+                    <td class="actions">
+
+
+                        <button
+                            class="secondary"
+                            onclick="addStock(${i})"
+                        >
+
+                            + Stock
+
+                        </button>
+
+
+                        <button
+                            class="danger"
+                            onclick="deleteProduct(${i})"
+                        >
+
+                            Delete
+
+                        </button>
+
+
+                    </td>
+
+
+                </tr>
+
+            `;
+
+        });
+
+    }
+
+
+    /*
+    PRODUCT DROPDOWN
+    */
+
+    const select =
+        document.getElementById(
+            "saleProduct"
+        );
+
+
+    if(products.length){
+
+        select.innerHTML =
+
+            products.map((p,i) => `
+
+                <option value="${i}">
+
+                    ${escapeHtml(p.name)}
+                    —
+                    ${p.stock} left
+
+                </option>
+
+            `).join("");
+
+    }
+
+    else{
+
+        select.innerHTML =
+            '<option value="">No products</option>';
+
+    }
+
+
+    /*
+    SALES SUMMARY
+    */
+
+    const salesSummary =
+        document.getElementById(
+            "salesSummary"
+        );
+
+
+    salesSummary.innerHTML = "";
+
+
+    if(!sales.length){
+
+        salesSummary.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="3"
+                    class="empty"
+                >
+
+                    No sales recorded yet.
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+    else{
+
+
+        const groupedSales = {};
+
+
+        /*
+        GROUP SALES BY PRODUCT NAME
+        */
+
+        sales.forEach(s => {
+
+
+            const productName =
+                s.product
+                .toLowerCase()
+                .trim();
+
+
+            if(!groupedSales[productName]){
+
+                groupedSales[productName] = {
+
+                    name:s.product,
+
+                    quantity:0,
+
+                    total:0
+
+                };
+
+            }
+
+
+            groupedSales[productName].quantity +=
+                Number(s.quantity);
+
+
+            groupedSales[productName].total +=
+                Number(s.total);
+
+        });
+
+
+        /*
+        DISPLAY GROUPED SALES
+        */
+
+        Object.values(groupedSales)
+        .forEach(s => {
+
+
+            salesSummary.innerHTML += `
+
+                <tr>
+
+                    <td>
+
+                        <b>
+                            ${escapeHtml(s.name)}
+                        </b>
+
+                    </td>
+
+
+                    <td>
+
+                        ${s.quantity}
+
+                    </td>
+
+
+                    <td>
+
+                        ${money(s.total)}
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+    }
+
+
+    /*
+    INDIVIDUAL SALES REPORT
+    */
+
+    const report =
+        document.getElementById(
+            "salesReport"
+        );
+
+
+    report.innerHTML = "";
+
+
+    if(!sales.length){
+
+        report.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="5"
+                    class="empty"
+                >
+
+                    No sales recorded yet.
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+    else{
+
+
+        [...sales]
+        .reverse()
+        .forEach(s => {
+
+
+            const date =
+                new Date(
+                    s.date
+                ).toLocaleString();
+
+
+            report.innerHTML += `
+
+                <tr>
+
+                    <td>
+
+                        <b>
+                            ${escapeHtml(s.buyer)}
+                        </b>
+
+                    </td>
+
+
+                    <td>
+
+                        ${escapeHtml(s.product)}
+
+                    </td>
+
+
+                    <td>
+
+                        ${s.quantity}
+
+                    </td>
+
+
+                    <td>
+
+                        ${money(s.total)}
+
+                    </td>
+
+
+                    <td>
+
+                        ${escapeHtml(date)}
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        });
+
+    }
+
+}
+
+
+/*
+====================================================
+ADD / RESTOCK PRODUCT
+====================================================
+*/
+
+document
+.getElementById("productForm")
+.addEventListener(
+    "submit",
+    e => {
+
+
+        e.preventDefault();
+
+
+        const name =
+            document
+            .getElementById("name")
+            .value
+            .trim();
+
+
+        const price =
+            Number(
+                document
+                .getElementById("price")
+                .value
+            );
+
+
+        const qty =
+            Number(
+                document
+                .getElementById("quantity")
+                .value
+            );
+
+
+        /*
+        FIND EXISTING PRODUCT
+
+        Coke
+        coke
+        COKE
+
+        are treated as the same product.
+        */
+
+        const existing =
+            products.find(
+                p =>
+                    p.name
+                    .toLowerCase()
+                    .trim()
+
+                    ===
+
+                    name
+                    .toLowerCase()
+                    .trim()
+            );
+
+
+        /*
+        EXISTING PRODUCT
+        */
+
+        if(existing){
+
+
+            existing.stock += qty;
+
+
+            /*
+            Update price
+            */
+
+            existing.price = price;
+
+
+            message(
+
+                `${name}: ${qty} stock added. ` +
+
+                `Total remaining: ` +
+
+                `${existing.stock}`
+
+            );
+
+        }
+
+
+        /*
+        NEW PRODUCT
+        */
+
+        else{
+
+
+            products.push({
+
+                name:name,
+
+                price:price,
+
+                stock:qty
+
+            });
+
+
+            message(
+
+                `${name} added with ` +
+
+                `${qty} items.`
+
+            );
+
+        }
+
+
+        e.target.reset();
+
+
+        save();
+
+    }
+);
+
+
+/*
+====================================================
+RECORD SALE
+====================================================
+*/
+
+document
+.getElementById("saleForm")
+.addEventListener(
+    "submit",
+    e => {
+
+
+        e.preventDefault();
+
+
+        const index =
+            Number(
+                document
+                .getElementById("saleProduct")
+                .value
+            );
+
+
+        const buyer =
+            document
+            .getElementById("buyerName")
+            .value
+            .trim();
+
+
+        const qty =
+            Number(
+                document
+                .getElementById("saleQuantity")
+                .value
+            );
+
+
+        /*
+        CHECK PRODUCT AND BUYER
+        */
+
+        if(
+            !products[index]
+            ||
+            !buyer
+        ){
+
+            return;
+
+        }
+
+
+        const p =
+            products[index];
+
+
+        /*
+        CHECK STOCK
+        */
+
+        if(qty > p.stock){
+
+            message(
+
+                `Not enough stock. ` +
+
+                `Only ${p.stock} left.`
+
+            );
+
+            return;
+
+        }
+
+
+        /*
+        REMOVE SOLD ITEMS
+        */
+
+        p.stock -= qty;
+
+
+        /*
+        SAVE SALE
+        */
+
+        sales.push({
+
+            buyer:buyer,
+
+            product:p.name,
+
+            quantity:qty,
+
+            total:p.price * qty,
+
+            date:new Date().toISOString()
+
+        });
+
+
+        message(
+
+            `Sale recorded for ${buyer}. ` +
+
+            `${qty} × ${p.name}. ` +
+
+            `Remaining stock: ${p.stock}`
+
+        );
+
+
+        e.target.reset();
+
+
+        save();
+
+    }
+);
+
+
+/*
+====================================================
+ADD STOCK BUTTON
+====================================================
+*/
 
 function addStock(i){
- const qty=Number(prompt(`How many "${products[i].name}" do you want to add?`));
- if(!Number.isInteger(qty)||qty<=0)return;
- products[i].stock+=qty;
- message(`${products[i].name}: ${qty} added. Remaining: ${products[i].stock}`);
- save();
+
+
+    const qty =
+        Number(
+
+            prompt(
+
+                `How many "${products[i].name}" ` +
+
+                `do you want to add?`
+
+            )
+
+        );
+
+
+    if(
+        !Number.isInteger(qty)
+        ||
+        qty <= 0
+    ){
+
+        return;
+
+    }
+
+
+    products[i].stock += qty;
+
+
+    message(
+
+        `${products[i].name}: ` +
+
+        `${qty} added. ` +
+
+        `Remaining: ` +
+
+        `${products[i].stock}`
+
+    );
+
+
+    save();
+
 }
+
+
+/*
+====================================================
+DELETE PRODUCT
+====================================================
+*/
+
 function deleteProduct(i){
- if(confirm(`Delete ${products[i].name}?`)){
-   products.splice(i,1); save();
- }
+
+
+    if(
+
+        confirm(
+
+            `Delete ${products[i].name}?`
+
+        )
+
+    ){
+
+        products.splice(i,1);
+
+        save();
+
+    }
+
 }
+
+
+/*
+====================================================
+CLEAR EVERYTHING
+====================================================
+*/
+
 function clearAll(){
- if(confirm("Delete all products and sales data? This cannot be undone.")){
-   products=[]; sales=[]; save(); message("All data cleared.");
- }
+
+
+    if(
+
+        confirm(
+
+            "Delete all products and sales data? " +
+
+            "This cannot be undone."
+
+        )
+
+    ){
+
+        products = [];
+
+        sales = [];
+
+
+        save();
+
+
+        message(
+            "All data cleared."
+        );
+
+    }
+
 }
+
+
+/*
+====================================================
+START WEBSITE
+====================================================
+*/
+
 render();
+
 </script>
+
 </body>
-</html>	
+
+</html>
+```
