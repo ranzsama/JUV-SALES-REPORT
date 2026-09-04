@@ -1,4 +1,3 @@
-WEBSITE BY RANZ 
 !DOCTYPE html>
 <html lang="en">
 
@@ -194,31 +193,77 @@ th{
     display:none;
 }
 
-@media(max-width:900px){
+@media(max-width:800px){
 
     .grid{
         grid-template-columns:1fr;
     }
 
     .cards{
-        grid-template-columns:repeat(2,1fr);
-    }
-
-}
-
-@media(max-width:550px){
-
-    .cards{
         grid-template-columns:1fr;
     }
 
 }
 
-</style>
+
+#loginScreen{
+    position:fixed;
+    inset:0;
+    background:#1f2937;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+    padding:20px;
+}
+.login-box{
+    background:white;
+    width:min(400px,100%);
+    border-radius:14px;
+    padding:28px;
+    box-shadow:0 10px 30px #00000030;
+}
+.login-box h2{margin-top:0}
+.login-error{
+    color:#dc2626;
+    font-size:14px;
+    margin-top:10px;
+    display:none;
+}
+.logout{
+    float:right;
+    margin:0;
+}
+button:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+}
+""</style>
 
 </head>
 
+
 <body>
+
+<div id="loginScreen">
+    <div class="login-box">
+        <h2>🔐 JUV Stock Report</h2>
+        <p>Log in to manage the inventory.</p>
+
+        <label>Username</label>
+        <input id="loginUsername" type="text" placeholder="Username">
+
+        <label>Password</label>
+        <input id="loginPassword" type="password" placeholder="Password">
+
+        <button class="primary" onclick="login()">Login</button>
+
+        <div id="loginError" class="login-error">
+            Incorrect username or password.
+        </div>
+    </div>
+</div>
+
 
 
 <header>
@@ -229,6 +274,8 @@ th{
 Manage products, add new stocks, record sales,
 and see remaining inventory.
 </p>
+
+<button class="secondary logout" onclick="logout()">Logout</button>
 
 </header>
 
@@ -263,6 +310,7 @@ and see remaining inventory.
 <input
     id="name"
     placeholder="Example: Coca-Cola"
+    required
 >
 
 
@@ -289,15 +337,18 @@ and see remaining inventory.
     required
 >
 
+<label>Category</label>
 
-<label>Unit of Measure</label>
-
-<input
-    id="uom"
-    type="text"
-    placeholder="Example: PCS"
->
-
+<select id="category" required>
+    <option value="">Select Category</option>
+    <option value="Beverages">Beverages</option>
+    <option value="Food">Food</option>
+    <option value="Snacks">Snacks</option>
+    <option value="School Supplies">School Supplies</option>
+    <option value="Personal Care">Personal Care</option>
+    <option value="Household">Household</option>
+    <option value="Other">Other</option>
+</select>
 
 <button
     class="primary"
@@ -387,17 +438,15 @@ Sell Item
 
 <tr>
 
-<th>Item</th>
+<th>Product</th>
 
-<th>Description</th>
+<th>Category</th>
 
-<th>Qty</th>
+<th>Price</th>
 
-<th>UOM</th>
+<th>Stock Left</th>
 
-<th>Unit Price</th>
-
-<th>Amount</th>
+<th>Value</th>
 
 <th>Actions</th>
 
@@ -424,12 +473,21 @@ Clear All Data
 
 </button>
 
+<button
+    class="secondary"
+    onclick="undoDelete()"
+    id="undoDeleteButton"
+    disabled
+>
+    ↩ Undo Delete
+</button>
 
-<!-- SALES REPORT -->
+
+<!-- SALES SUMMARY -->
 
 <h2 style="margin-top:28px">
 
-Sales Transactions
+Sales Summary by Product
 
 </h2>
 
@@ -444,17 +502,11 @@ Sales Transactions
 
 <tr>
 
-<th>Item</th>
+<th>Product</th>
 
-<th>Description</th>
+<th>Total Sold</th>
 
-<th>Qty</th>
-
-<th>UOM</th>
-
-<th>Unit Price</th>
-
-<th>Amount</th>
+<th>Total Sales</th>
 
 </tr>
 
@@ -537,12 +589,21 @@ JSON.parse(
     localStorage.getItem("storeSales") || "[]"
 );
 
-/* Older products get PCS automatically */
 products.forEach(p => {
-    if(!p.uom){
-        p.uom = "PCS";
+    if(!p.category){
+        p.category = "Other";
     }
 });
+
+let lastDeletedProduct =
+    JSON.parse(
+        localStorage.getItem("storeLastDeletedProduct") || "null"
+    );
+
+let lastDeletedIndex =
+    Number(
+        localStorage.getItem("storeLastDeletedIndex") || "-1"
+    );
 
 
 /* SAVE DATA */
@@ -610,16 +671,6 @@ function escapeHtml(s){
         }[m])
     );
 
-}
-
-/* GET ITEM NUMBER */
-function itemNumber(index){
-    return String(index + 1).padStart(3, "0");
-}
-
-/* GET PRODUCT UOM */
-function getUom(product){
-    return product.uom || "PCS";
 }
 
 
@@ -785,7 +836,7 @@ function render(){
 
 
     /*
-    INVENTORY REPORT
+    INVENTORY
     */
 
     const body =
@@ -793,7 +844,9 @@ function render(){
             "inventory"
         );
 
+
     body.innerHTML = "";
+
 
     if(!products.length){
 
@@ -802,7 +855,7 @@ function render(){
             <tr>
 
                 <td
-                    colspan="7"
+                    colspan="6"
                     class="empty"
                 >
 
@@ -819,62 +872,77 @@ function render(){
 
     else{
 
+
         products.forEach((p,i) => {
 
+
             const value =
-                Number(p.price) * Number(p.stock);
+                p.price * p.stock;
+
 
             body.innerHTML += `
 
                 <tr>
 
                     <td>
-                        <b>${itemNumber(i)}</b>
-                    </td>
 
-                    <td>
                         <b>
                             ${escapeHtml(p.name)}
                         </b>
+
                     </td>
+
+
+                    <td>
+
+                        ${money(p.price)}
+
+                    </td>
+
 
                     <td class="${
                         p.stock <= 5
                         ? "stock-low"
                         : "stock-ok"
                     }">
+
                         ${p.stock}
+
                     </td>
 
-                    <td>
-                        ${escapeHtml(getUom(p))}
-                    </td>
 
                     <td>
-                        ${money(p.price)}
-                    </td>
 
-                    <td>
                         ${money(value)}
+
                     </td>
+
 
                     <td class="actions">
+
 
                         <button
                             class="secondary"
                             onclick="addStock(${i})"
                         >
+
                             + Stock
+
                         </button>
+
 
                         <button
                             class="danger"
                             onclick="deleteProduct(${i})"
                         >
+
                             Delete
+
                         </button>
 
+
                     </td>
+
 
                 </tr>
 
@@ -922,7 +990,7 @@ function render(){
 
 
     /*
-    GROUPED SALES REPORT
+    SALES SUMMARY
     */
 
     const salesSummary =
@@ -930,16 +998,18 @@ function render(){
             "salesSummary"
         );
 
+
     salesSummary.innerHTML = "";
 
-    if(!products.length && !sales.length){
+
+    if(!sales.length){
 
         salesSummary.innerHTML = `
 
             <tr>
 
                 <td
-                    colspan="6"
+                    colspan="3"
                     class="empty"
                 >
 
@@ -955,7 +1025,9 @@ function render(){
 
     else{
 
+
         const groupedSales = {};
+
 
         /*
         GROUP SALES BY PRODUCT NAME
@@ -963,105 +1035,70 @@ function render(){
 
         sales.forEach(s => {
 
-            const key =
+
+            const productName =
                 s.product
                 .toLowerCase()
                 .trim();
 
-            if(!groupedSales[key]){
 
-                groupedSales[key] = {
+            if(!groupedSales[productName]){
 
-                    name: s.product,
+                groupedSales[productName] = {
 
-                    quantity: 0,
+                    name:s.product,
 
-                    total: 0,
+                    quantity:0,
 
-                    unitPrice: Number(s.total) / Number(s.quantity),
-
-                    uom: "PCS"
+                    total:0
 
                 };
 
             }
 
-            groupedSales[key].quantity +=
+
+            groupedSales[productName].quantity +=
                 Number(s.quantity);
 
-            groupedSales[key].total +=
+
+            groupedSales[productName].total +=
                 Number(s.total);
 
         });
 
+
         /*
-        SHOW PRODUCTS THAT HAVE SALES
+        DISPLAY GROUPED SALES
         */
 
         Object.values(groupedSales)
-        .forEach((s) => {
+        .forEach(s => {
 
-            const productIndex =
-                products.findIndex(
-                    p =>
-                        p.name
-                        .toLowerCase()
-                        .trim()
-                        ===
-                        s.name
-                        .toLowerCase()
-                        .trim()
-                );
-
-            const product =
-                productIndex >= 0
-                ? products[productIndex]
-                : null;
-
-            const uom =
-                product
-                ? getUom(product)
-                : s.uom;
-
-            const unitPrice =
-                product
-                ? Number(product.price)
-                : Number(s.unitPrice);
 
             salesSummary.innerHTML += `
 
                 <tr>
 
                     <td>
-                        <b>
-                            ${
-                                productIndex >= 0
-                                ? itemNumber(productIndex)
-                                : "-"
-                            }
-                        </b>
-                    </td>
 
-                    <td>
                         <b>
                             ${escapeHtml(s.name)}
                         </b>
+
                     </td>
 
+
                     <td>
+
                         ${s.quantity}
+
                     </td>
 
-                    <td>
-                        ${escapeHtml(uom)}
-                    </td>
 
                     <td>
-                        ${money(unitPrice)}
-                    </td>
 
-                    <td>
                         ${money(s.total)}
+
                     </td>
 
                 </tr>
@@ -1069,27 +1106,6 @@ function render(){
             `;
 
         });
-
-        if(!Object.keys(groupedSales).length){
-
-            salesSummary.innerHTML = `
-
-                <tr>
-
-                    <td
-                        colspan="6"
-                        class="empty"
-                    >
-
-                        No sales recorded yet.
-
-                    </td>
-
-                </tr>
-
-            `;
-
-        }
 
     }
 
@@ -1213,7 +1229,7 @@ document
             document
             .getElementById("name")
             .value
-            .trim() || "Unnamed Product";
+            .trim();
 
 
         const price =
@@ -1230,13 +1246,6 @@ document
                 .getElementById("quantity")
                 .value
             );
-
-        const uom =
-            document
-            .getElementById("uom")
-            .value
-            .trim()
-            .toUpperCase() || "PCS";
 
 
         /*
@@ -1279,7 +1288,6 @@ document
             */
 
             existing.price = price;
-            existing.uom = uom;
 
 
             message(
@@ -1308,9 +1316,7 @@ document
 
                 price:price,
 
-                stock:qty,
-
-                uom:uom
+                stock:qty
 
             });
 
@@ -1327,8 +1333,6 @@ document
 
 
         e.target.reset();
-
-        document.getElementById("uom").value = "PCS";
 
 
         save();
@@ -1380,7 +1384,11 @@ document
         CHECK PRODUCT AND BUYER
         */
 
-        if(!products[index]){
+        if(
+            !products[index]
+            ||
+            !buyer
+        ){
 
             return;
 
@@ -1448,8 +1456,6 @@ document
 
 
         e.target.reset();
-
-        document.getElementById("uom").value = "PCS";
 
 
         save();
@@ -1585,8 +1591,82 @@ START WEBSITE
 ====================================================
 */
 
+
+const LOGIN_USERNAME = "admin";
+const LOGIN_PASSWORD = "1234";
+
+function login(){
+
+    const username =
+        document.getElementById("loginUsername").value.trim();
+
+    const password =
+        document.getElementById("loginPassword").value;
+
+    const error =
+        document.getElementById("loginError");
+
+    if(
+        username === LOGIN_USERNAME &&
+        password === LOGIN_PASSWORD
+    ){
+
+        sessionStorage.setItem(
+            "storeLoggedIn",
+            "true"
+        );
+
+        document.getElementById(
+            "loginScreen"
+        ).style.display = "none";
+
+        error.style.display = "none";
+
+    }else{
+
+        error.style.display = "block";
+
+    }
+
+}
+
+function logout(){
+
+    sessionStorage.removeItem("storeLoggedIn");
+
+    document.getElementById(
+        "loginScreen"
+    ).style.display = "flex";
+
+    document.getElementById(
+        "loginPassword"
+    ).value = "";
+
+}
+
+function checkLogin(){
+
+    if(
+        sessionStorage.getItem(
+            "storeLoggedIn"
+        ) === "true"
+    ){
+
+        document.getElementById(
+            "loginScreen"
+        ).style.display = "none";
+
+    }
+
+}
+
+
+checkLogin();
+
 render();
 
 </script>
 
 </body>
+
+</html>
