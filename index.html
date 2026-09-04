@@ -122,11 +122,6 @@ input,select{
     font-size:15px;
 }
 
-button:disabled{
-    opacity:0.5;
-    cursor:not-allowed;
-}
-
 button{
     border:0;
     border-radius:7px;
@@ -198,11 +193,19 @@ th{
     display:none;
 }
 
-@media(max-width:800px){
+@media(max-width:900px){
 
     .grid{
         grid-template-columns:1fr;
     }
+
+    .cards{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:550px){
 
     .cards{
         grid-template-columns:1fr;
@@ -259,7 +262,6 @@ and see remaining inventory.
 <input
     id="name"
     placeholder="Example: Coca-Cola"
-    required
 >
 
 
@@ -284,6 +286,15 @@ and see remaining inventory.
     step="1"
     placeholder="Example: 20"
     required
+>
+
+
+<label>Unit of Measure</label>
+
+<input
+    id="uom"
+    type="text"
+    placeholder="Example: PCS"
 >
 
 
@@ -375,13 +386,17 @@ Sell Item
 
 <tr>
 
-<th>Product</th>
+<th>Item</th>
 
-<th>Price</th>
+<th>Description</th>
 
-<th>Stock Left</th>
+<th>Qty</th>
 
-<th>Value</th>
+<th>UOM</th>
+
+<th>Unit Price</th>
+
+<th>Amount</th>
 
 <th>Actions</th>
 
@@ -409,11 +424,11 @@ Clear All Data
 </button>
 
 
-<!-- SALES SUMMARY -->
+<!-- SALES REPORT -->
 
 <h2 style="margin-top:28px">
 
-Sales Summary by Product
+Sales Transactions
 
 </h2>
 
@@ -428,11 +443,17 @@ Sales Summary by Product
 
 <tr>
 
-<th>Product</th>
+<th>Item</th>
 
-<th>Total Sold</th>
+<th>Description</th>
 
-<th>Total Sales</th>
+<th>Qty</th>
+
+<th>UOM</th>
+
+<th>Unit Price</th>
+
+<th>Amount</th>
 
 </tr>
 
@@ -515,16 +536,12 @@ JSON.parse(
     localStorage.getItem("storeSales") || "[]"
 );
 
-/* Last deleted inventory item */
-let lastDeletedProduct =
-    JSON.parse(
-        localStorage.getItem("storeLastDeletedProduct") || "null"
-    );
-
-let lastDeletedIndex =
-    Number(
-        localStorage.getItem("storeLastDeletedIndex") || "-1"
-    );
+/* Older products get PCS automatically */
+products.forEach(p => {
+    if(!p.uom){
+        p.uom = "PCS";
+    }
+});
 
 
 /* SAVE DATA */
@@ -592,6 +609,16 @@ function escapeHtml(s){
         }[m])
     );
 
+}
+
+/* GET ITEM NUMBER */
+function itemNumber(index){
+    return String(index + 1).padStart(3, "0");
+}
+
+/* GET PRODUCT UOM */
+function getUom(product){
+    return product.uom || "PCS";
 }
 
 
@@ -757,7 +784,7 @@ function render(){
 
 
     /*
-    INVENTORY
+    INVENTORY REPORT
     */
 
     const body =
@@ -765,9 +792,7 @@ function render(){
             "inventory"
         );
 
-
     body.innerHTML = "";
-
 
     if(!products.length){
 
@@ -776,7 +801,7 @@ function render(){
             <tr>
 
                 <td
-                    colspan="5"
+                    colspan="7"
                     class="empty"
                 >
 
@@ -793,77 +818,62 @@ function render(){
 
     else{
 
-
         products.forEach((p,i) => {
 
-
             const value =
-                p.price * p.stock;
-
+                Number(p.price) * Number(p.stock);
 
             body.innerHTML += `
 
                 <tr>
 
                     <td>
+                        <b>${itemNumber(i)}</b>
+                    </td>
 
+                    <td>
                         <b>
                             ${escapeHtml(p.name)}
                         </b>
-
                     </td>
-
-
-                    <td>
-
-                        ${money(p.price)}
-
-                    </td>
-
 
                     <td class="${
                         p.stock <= 5
                         ? "stock-low"
                         : "stock-ok"
                     }">
-
                         ${p.stock}
-
                     </td>
-
 
                     <td>
-
-                        ${money(value)}
-
+                        ${escapeHtml(getUom(p))}
                     </td>
 
+                    <td>
+                        ${money(p.price)}
+                    </td>
+
+                    <td>
+                        ${money(value)}
+                    </td>
 
                     <td class="actions">
-
 
                         <button
                             class="secondary"
                             onclick="addStock(${i})"
                         >
-
                             + Stock
-
                         </button>
-
 
                         <button
                             class="danger"
                             onclick="deleteProduct(${i})"
                         >
-
                             Delete
-
                         </button>
 
-
                     </td>
-
 
                 </tr>
 
@@ -911,7 +921,7 @@ function render(){
 
 
     /*
-    SALES SUMMARY
+    GROUPED SALES REPORT
     */
 
     const salesSummary =
@@ -919,18 +929,16 @@ function render(){
             "salesSummary"
         );
 
-
     salesSummary.innerHTML = "";
 
-
-    if(!sales.length){
+    if(!products.length && !sales.length){
 
         salesSummary.innerHTML = `
 
             <tr>
 
                 <td
-                    colspan="3"
+                    colspan="6"
                     class="empty"
                 >
 
@@ -946,9 +954,7 @@ function render(){
 
     else{
 
-
         const groupedSales = {};
-
 
         /*
         GROUP SALES BY PRODUCT NAME
@@ -956,70 +962,105 @@ function render(){
 
         sales.forEach(s => {
 
-
-            const productName =
+            const key =
                 s.product
                 .toLowerCase()
                 .trim();
 
+            if(!groupedSales[key]){
 
-            if(!groupedSales[productName]){
+                groupedSales[key] = {
 
-                groupedSales[productName] = {
+                    name: s.product,
 
-                    name:s.product,
+                    quantity: 0,
 
-                    quantity:0,
+                    total: 0,
 
-                    total:0
+                    unitPrice: Number(s.total) / Number(s.quantity),
+
+                    uom: "PCS"
 
                 };
 
             }
 
-
-            groupedSales[productName].quantity +=
+            groupedSales[key].quantity +=
                 Number(s.quantity);
 
-
-            groupedSales[productName].total +=
+            groupedSales[key].total +=
                 Number(s.total);
 
         });
 
-
         /*
-        DISPLAY GROUPED SALES
+        SHOW PRODUCTS THAT HAVE SALES
         */
 
         Object.values(groupedSales)
-        .forEach(s => {
+        .forEach((s) => {
 
+            const productIndex =
+                products.findIndex(
+                    p =>
+                        p.name
+                        .toLowerCase()
+                        .trim()
+                        ===
+                        s.name
+                        .toLowerCase()
+                        .trim()
+                );
+
+            const product =
+                productIndex >= 0
+                ? products[productIndex]
+                : null;
+
+            const uom =
+                product
+                ? getUom(product)
+                : s.uom;
+
+            const unitPrice =
+                product
+                ? Number(product.price)
+                : Number(s.unitPrice);
 
             salesSummary.innerHTML += `
 
                 <tr>
 
                     <td>
+                        <b>
+                            ${
+                                productIndex >= 0
+                                ? itemNumber(productIndex)
+                                : "-"
+                            }
+                        </b>
+                    </td>
 
+                    <td>
                         <b>
                             ${escapeHtml(s.name)}
                         </b>
-
                     </td>
 
-
                     <td>
-
                         ${s.quantity}
-
                     </td>
 
+                    <td>
+                        ${escapeHtml(uom)}
+                    </td>
 
                     <td>
+                        ${money(unitPrice)}
+                    </td>
 
+                    <td>
                         ${money(s.total)}
-
                     </td>
 
                 </tr>
@@ -1027,6 +1068,27 @@ function render(){
             `;
 
         });
+
+        if(!Object.keys(groupedSales).length){
+
+            salesSummary.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="6"
+                        class="empty"
+                    >
+
+                        No sales recorded yet.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
 
     }
 
@@ -1150,7 +1212,7 @@ document
             document
             .getElementById("name")
             .value
-            .trim();
+            .trim() || "Unnamed Product";
 
 
         const price =
@@ -1167,6 +1229,13 @@ document
                 .getElementById("quantity")
                 .value
             );
+
+        const uom =
+            document
+            .getElementById("uom")
+            .value
+            .trim()
+            .toUpperCase() || "PCS";
 
 
         /*
@@ -1209,6 +1278,7 @@ document
             */
 
             existing.price = price;
+            existing.uom = uom;
 
 
             message(
@@ -1237,7 +1307,9 @@ document
 
                 price:price,
 
-                stock:qty
+                stock:qty,
+
+                uom:uom
 
             });
 
@@ -1254,6 +1326,8 @@ document
 
 
         e.target.reset();
+
+        document.getElementById("uom").value = "PCS";
 
 
         save();
@@ -1305,11 +1379,7 @@ document
         CHECK PRODUCT AND BUYER
         */
 
-        if(
-            !products[index]
-            ||
-            !buyer
-        ){
+        if(!products[index]){
 
             return;
 
@@ -1352,7 +1422,7 @@ document
 
         sales.push({
 
-            buyer:buyer,
+            buyer:buyer || "Walk-in Customer",
 
             product:p.name,
 
@@ -1367,7 +1437,7 @@ document
 
         message(
 
-            `Sale recorded for ${buyer}. ` +
+            `Sale recorded for ${buyer || "Walk-in Customer"}. ` +
 
             `${qty} × ${p.name}. ` +
 
@@ -1377,6 +1447,8 @@ document
 
 
         e.target.reset();
+
+        document.getElementById("uom").value = "PCS";
 
 
         save();
@@ -1448,36 +1520,20 @@ DELETE PRODUCT
 
 function deleteProduct(i){
 
-    if(!products[i]){
-        return;
-    }
 
-    if(confirm(`Delete ${products[i].name}?`)){
+    if(
 
-        /* Save a copy before deleting */
-        lastDeletedProduct = {
-            ...products[i]
-        };
+        confirm(
 
-        lastDeletedIndex = i;
+            `Delete ${products[i].name}?`
 
-        localStorage.setItem(
-            "storeLastDeletedProduct",
-            JSON.stringify(lastDeletedProduct)
-        );
+        )
 
-        localStorage.setItem(
-            "storeLastDeletedIndex",
-            String(lastDeletedIndex)
-        );
+    ){
 
         products.splice(i,1);
 
         save();
-
-        message(
-            "Product deleted. Click Undo Delete to restore it."
-        );
 
     }
 
@@ -1489,45 +1545,6 @@ function deleteProduct(i){
 CLEAR EVERYTHING
 ====================================================
 */
-
-function undoDelete(){
-
-    if(!lastDeletedProduct){
-
-        message("There is nothing to undo.");
-
-        return;
-
-    }
-
-    const index = Math.min(
-        Math.max(lastDeletedIndex, 0),
-        products.length
-    );
-
-    products.splice(
-        index,
-        0,
-        lastDeletedProduct
-    );
-
-    lastDeletedProduct = null;
-    lastDeletedIndex = -1;
-
-    localStorage.removeItem(
-        "storeLastDeletedProduct"
-    );
-
-    localStorage.removeItem(
-        "storeLastDeletedIndex"
-    );
-
-    save();
-
-    message("Product restored successfully.");
-
-}
-
 
 function clearAll(){
 
@@ -1547,12 +1564,6 @@ function clearAll(){
         products = [];
 
         sales = [];
-
-        lastDeletedProduct = null;
-        lastDeletedIndex = -1;
-
-        localStorage.removeItem("storeLastDeletedProduct");
-        localStorage.removeItem("storeLastDeletedIndex");
 
 
         save();
